@@ -1,0 +1,13 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+@theme static {
+    --color-m_blue-500: #2C7CBE
+
+    --color-m_orange-500: #D65E31;
+}
+
+:root {
+    --ui-primary: #315A80;
+    --ui-secondary: #dc602e;
+}
