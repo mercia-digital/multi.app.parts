@@ -10,31 +10,30 @@ export default defineEventHandler(async (event) => {
     // Build Directus filter object
     const filter: any = {};
     
-    if (query.manufacturer_id) {
+    // Prefer slug-based filtering if provided; fall back to ID-based
+    if (query.manufacturer_slug) {
+        filter.manufacturer = { slug: { _eq: query.manufacturer_slug } };
+    } else if (query.manufacturer_id) {
         filter.manufacturer = { _eq: query.manufacturer_id };
     }
     
-    if (query.modality_id) {
-        filter.modality = { _eq: query.modality_id };
+    // Modalities is a many-to-many relation on parts (field: `modalities`).
+    // To filter by modality slug/id, we must target the junction field `modalities.modalities_id`.
+    if (query.modality_slug) {
+        filter.modalities = { modalities_id: { slug: { _eq: query.modality_slug } } };
+    } else if (query.modality_id) {
+        filter.modalities = { modalities_id: { _eq: query.modality_id } };
     }    
     
-    const directusParams = {
+    const directusParams: any = {
         search: query.search || '',
         sort: '-sort',
         filter: filter,
         limit: query.limit || 25,
         offset: query.offset || 0,
-        fields: ['id', 'part_number', 'title', 'list_price', 'manufacturer.slug', 'manufacturer.name', 'prices.*', 'primary_image.id', 'slug'],
-        aggregate: {},
-        deep: {
-            "prices": {
-                "_filter": {
-                    "customer": {
-                        "Customer_Name": { _eq: query.customer_name }
-                    }
-                }
-            }
-        }
+        // Removed pricing-related fields (list_price, prices.*)
+        fields: ['id', 'part_number', 'title', 'manufacturer.slug', 'manufacturer.name', 'primary_image.id', 'slug'],
+        aggregate: {}
     };
 
     if (query.search) {
@@ -64,3 +63,4 @@ export default defineEventHandler(async (event) => {
         console.error(e);
     }
 })
+

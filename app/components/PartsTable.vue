@@ -3,22 +3,20 @@
         <!-- Responsive Grid -->
         <div class="container mx-auto mb-4">
             <!-- Header for larger screens -->
-            <div class="hidden md:grid md:grid-cols-7 gap-4 font-bold p-2 border-b text-center">
+            <div class="hidden md:grid md:grid-cols-5 gap-4 font-bold p-2 border-b text-center">
                 <div>Image</div>
                 <div>Part Number</div>
                 <div>Title</div>
                 <div>Manufacturer</div>
-                <div>List Price</div>
-                <div>Your Price</div>
                 <div>Actions</div>
             </div>
 
             <!-- Parts List -->
-            <div v-for="part in parts" :key="part.id" class="grid grid-cols-1 md:grid-cols-7 gap-4 items-center border-b p-2 text-center">
+            <div v-for="part in parts" :key="part.id" class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center border-b p-2 text-center">   
                 <!-- Image -->
                 <div class="flex justify-center">
-                    <img v-if="part.primary_image" :src="`${runtimeConfig.public.directus.url}/assets/${part.primary_image.id}?fit=inside&width=360`" :alt="'Image of ' + part.part_number + ' from ' + part.manufacturer.name" class="w-72 h-72 md:w-24 md:h-24 object-contain">
-                    <img v-else :src="`${runtimeConfig.public.directus.url}/assets/${appSettings.default_image}?fit=inside&width=360`" alt="MULTI, INC." class="w-72 h-72 md:w-24 md:h-24 object-contain">
+                    <img v-if="part.primary_image" :src="`${runtimeConfig.public.directus.url}/assets/${part.primary_image.id}?fit=inside&width=480`" :alt="'Image of ' + part.part_number + ' from ' + part.manufacturer.name">
+                    <img v-else :src="`${runtimeConfig.public.directus.url}/assets/${appSettings.default_image}?fit=inside&width=480`" alt="MULTI, INC.">
                 </div>
 
                 <!-- Part Number -->
@@ -37,18 +35,6 @@
                 <div class="flex justify-between md:justify-center">
                     <span class="font-bold md:hidden">Manufacturer:</span>
                     <span>{{ part.manufacturer.name }}</span>
-                </div>
-
-                <!-- List Price -->
-                <div class="flex justify-between md:justify-center">
-                    <span class="font-bold md:hidden">List Price:</span>
-                    <span>{{ formatCurrency(part.list_price) }}</span>
-                </div>
-
-                <!-- Your Price -->
-                <div class="flex justify-between md:justify-center">
-                    <span class="font-bold md:hidden">Your Price:</span>
-                    <span>{{ formatCurrency(part.your_price) }}</span>
                 </div>
 
                 <!-- Actions -->
@@ -106,14 +92,6 @@ const totalPages = computed(() => {
     if (!props.meta || !props.meta.filter_count) return 1;
     return Math.ceil(props.meta.filter_count / perPage.value);
 });
-
-const formatCurrency = (value) => {
-    if (value === null || value === undefined) return '';
-    return new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-    }).format(value);
-};
 
 const decodeHtmlEntities = (text) => {
     return he.decode(text);

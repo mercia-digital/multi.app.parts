@@ -1,6 +1,16 @@
 require('dotenv').config();
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+  app: {
+    head: {
+      script: [
+        {
+          src: 'https://kit.fontawesome.com/dc73769163.js',
+          crossorigin: 'anonymous'
+        }
+      ]
+    }
+  },
   compatibilityDate: '2025-07-15',
   devtools: {
     enabled: true,
@@ -9,7 +19,7 @@ export default defineNuxtConfig({
       enabled: true,
     },
   },
-  modules: ['nuxt-directus', '@nuxt/ui'],
+  modules: ['@nuxt/ui'],
   ui: {
     colorMode: false
   },

@@ -13,7 +13,7 @@
 <script setup>
 import { useBreadcrumbs } from '~/composables/useBreadcrumbs';
 
-const { data: breadcrumbs } = await useBreadcrumbs();
+const { breadcrumbs } = useBreadcrumbs();
 </script>
 
 <style scoped>

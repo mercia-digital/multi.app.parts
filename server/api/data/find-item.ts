@@ -1,13 +1,20 @@
-interface ModalityResponse {
+interface ItemResponse {
     data: any;
 }
 
 export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig();
-    const slug = getQuery(event).slug;
+    const { slug, collection } = getQuery(event);
     
+    if (!collection) {
+        throw createError({
+            statusCode: 400,
+            statusMessage: 'Collection not specified',
+        });
+    }
+
     try {
-        const modality = await $fetch<ModalityResponse>(config.directus_url + "/items/modalities", {
+        const item = await $fetch<ItemResponse>(config.directus_url + "/items/" + collection, {
             headers: {
                 Authorization: "Bearer " + config.directus_token,
             },
@@ -32,7 +39,7 @@ export default defineEventHandler(async (event) => {
                 }
             },
         });
-        return modality.data[0];
+        return item.data[0];
     } catch (e) {
         console.error(e);
     }

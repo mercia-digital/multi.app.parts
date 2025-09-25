@@ -4,10 +4,6 @@
     </div>
 </template>
 <script setup>
-definePageMeta({
-    middleware: "auth",
-});
-
 const route = useRoute();
 const manufacturer_slug = route.params.manufacturer_slug;
 const part_slug = route.params.part_slug;

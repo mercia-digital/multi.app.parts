@@ -1,48 +1,72 @@
 <template>
     <div>
-        <PartsTable :parts="parts" :meta="meta" :currentPage="page" :perPage="perPage" @update:currentPage="page = $event" @update:perPage="perPage = $event"/>
+        <div class="flex gap-6">
+            <!-- Sidebar filters -->
+            <PartsSidebarFilters
+                :initial-search-term="search"
+                :initial-manufacturer="manufacturer"
+                :initial-modality="modality"
+                @search="handleSearch"
+            />
+
+            <!-- Main table content -->
+            <div class="flex-1">
+                <PartsTable
+                    :parts="parts"
+                    :meta="meta"
+                    :currentPage="page"
+                    :perPage="perPage"
+                    @update:currentPage="page = $event"
+                    @update:perPage="perPage = $event"
+                />
+            </div>
+        </div>
     </div>
 </template>
 <script setup>
-definePageMeta({
-    middleware: "auth",
-});
-
 const route = useRoute();
 const slug = route.params.slug;
-
-const { data: modality } = await useModality(slug);
 
 const page = ref(Number(route.query.page) || 1);
 const perPage = ref(Number(route.query.perPage) || 25);
 
-const queryParams = computed(() => ({
-    offset: (page.value - 1) * perPage.value,
-    limit: perPage.value,
-    modality_id: modality.value.id,
-}));
+// Sidebar filter state
+const search = ref(route.query.search || '');
+const manufacturer = ref(route.query.manufacturer || '');
+const modality = ref(slug || route.query.modality || '');
 
-const { data: partsData } = await useParts(queryParams);
+const handleSearch = (filters) => {
+    search.value = filters.term;
+    manufacturer.value = filters.manufacturer;
+    modality.value = filters.modality || slug;
+    page.value = 1; // Reset to first page on new search
+};
+
+const offset = computed(() => (page.value - 1) * perPage.value);
+
+const { data: partsData } = await useParts({
+    limit: perPage,
+    offset: offset,
+    search: search,
+    manufacturer_slug: manufacturer,
+    modality_slug: modality,
+});
 
 const parts = computed(() => partsData.value.parts);
 const meta = computed(() => partsData.value.meta);
 
-watch([page, perPage, modality], () => {
+watch([page, perPage, manufacturer, modality, search], () => {
     updateQuery();
 });
 
 function updateQuery() {
-    const query = {
-        page: null,
-        perPage: null,
-        modality: modality.value.slug || '',
-    };
-    if (page.value !== 1) {
-        query.page = page.value;
-    }
-    if (perPage.value !== 25) {
-        query.perPage = perPage.value;
-    }
-    navigateTo(`/parts/modality/${slug}?${Object.entries(query).filter(([key, value]) => value).map(([key, value]) => `${key}=${value}`).join('&')}`);
+    const query = {};
+    if (page.value !== 1) query.page = page.value;
+    if (perPage.value !== 25) query.perPage = perPage.value;
+    if (manufacturer.value) query.manufacturer = manufacturer.value;
+    if (search.value) query.search = search.value;
+
+    const targetSlug = modality.value || slug;
+    navigateTo(`/parts/modality/${targetSlug}?${Object.entries(query).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&')}`);
 }
 </script>
