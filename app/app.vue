@@ -1,7 +1,8 @@
 <template>
     <UApp>
+        <NuxtLoadingIndicator color="var(--ui-secondary)" height=5 />
         <AppHeader />
-        <main class="mx-auto p-4" style="max-width: 1920px">
+        <main class="mx-auto p-4" style="max-width: 1400px">
             <Breadcrumbs v-if="route.path !== '/'" />
             <NuxtPage />
         </main>

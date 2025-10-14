@@ -1,135 +1,100 @@
 <template>
   <aside id="sidebar-filters" class="p-6 rounded-lg">
-    <div class="search">
+    <div v-if="(manufacturer && manufacturer !== '') || (modality && modality !== '') || (localSearchTerm && localSearchTerm !== '')" class="actions text-right mb-4">
+      <button @click="onClear" class="text-[#2275b5] hover:text-[#dc602e] transition-all duration-300"><i class="fa-sharp fa-xmark"></i>Clear Filters</button>
+    </div>
+    <div class="search relative">
       <input
         type="text"
-        v-model="searchTerm"
-        @keyup.enter="search"
+        v-model="localSearchTerm"
+        @keyup.enter="submitSearch"
         placeholder="Search by Keyword"
-        class="px-4 py-2 w-full rounded-full"
+        class="px-4 py-2 w-full rounded-full pr-10"
       />
+      <button
+        v-if="localSearchTerm && localSearchTerm !== ''"
+        type="button"
+        @click="clearSearch"
+        aria-label="Clear search"
+        class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+      >
+        <i class="fa-sharp fa-xmark"></i>
+      </button>
     </div>
-
-    <div class="actions clear-search-wrapper flex flex-col gap-4 mb-4">
-      <a @click="search" class="button">Search</a>
-      <a href="/parts" class="button alt">Clear Filters</a>
-    </div>
-
     <div class="filter mb-4">
-      <DropDown
+      <FilterAccordion
         @option-selected="selectManufacturer"
-        ref="manufacturerDD"
         :selected-value="manufacturer"
         collection="manufacturers"
-        placeholder="Filter by Manufacturer"
-      ></DropDown>
+        placeholder="Manufacturer"
+      />
     </div>
-
     <div class="filter mb-4">
-      <DropDown
+      <FilterAccordion
         @option-selected="selectModality"
-        ref="modalityDD"
         :selected-value="modality"
         collection="modalities"
-        placeholder="Filter by Modality"
-      ></DropDown>
+        placeholder="Modality"
+      />
+    </div>
+    <div class="actions clear-search-wrapper flex flex-col gap-4 mb-4">
+      <button type="button" @click="submitSearch" class="button">Search</button>
     </div>
   </aside>
 </template>
 
 <script setup>
 import { ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
 
 const props = defineProps({
-  initialSearchTerm: {
-    type: String,
-    default: ''
-  },
-  initialManufacturer: {
-    type: String,
-    default: ''
-  },
-  initialModality: {
-    type: String,
-    default: ''
-  }
+  search: { type: String, default: '' },
+  manufacturer: { type: String, default: '' },
+  modality: { type: String, default: '' }
 });
 
-const emit = defineEmits(['search', 'clear']);
+const emit = defineEmits(['update:search', 'update:manufacturer', 'update:modality', 'submit', 'clear']);
 
-const route = useRoute();
+const localSearchTerm = ref(props.search || '');
 
-const searchTerm = ref(props.initialSearchTerm);
-const manufacturer = ref(props.initialManufacturer);
-const modality = ref(props.initialModality);
+watch(() => props.search, (v) => {
+  // keep local input in sync with parent when route changes externally
+  localSearchTerm.value = v || '';
+});
 
-const manufacturerDD = ref(null);
-const modalityDD = ref(null);
-
-// Search function that emits the search event
-const search = () => {
-  emit('search', {
-    term: searchTerm.value,
-    manufacturer: manufacturer.value,
-    modality: modality.value
+function submitSearch() {
+  // keep parent route in sync via submit payload; also emit update:search for consumers who bind v-model:search
+  emit('update:search', localSearchTerm.value || '');
+  emit('submit', {
+    search: localSearchTerm.value || '',
+    manufacturer: props.manufacturer || '',
+    modality: props.modality || ''
   });
-};
+}
 
-// Clear all filters
-const clearFilters = () => {
-  searchTerm.value = '';
-  manufacturer.value = '';
-  modality.value = '';
-
-  if (manufacturerDD.value) {
-    manufacturerDD.value.clearFilters();
-  }
-
-  if (modalityDD.value) {
-    modalityDD.value.clearFilters();
-  }
-
+function onClear() {
   emit('clear');
-};
+}
 
-// Select manufacturer from dropdown
-const selectManufacturer = (option) => {
-  manufacturer.value = option.slug;
-  search();
-};
+// Clear only the search term and immediately submit updated filters
+function clearSearch() {
+  localSearchTerm.value = '';
+  emit('update:search', '');
+  emit('submit', {
+    search: '',
+    manufacturer: props.manufacturer || '',
+    modality: props.modality || ''
+  });
+}
 
-// Select modality from dropdown
-const selectModality = (option) => {
-  modality.value = option.slug;
-  search();
-};
+// Select manufacturer from accordion
+function selectManufacturer(option) {
+  emit('update:manufacturer', option.slug || '');
+}
 
-// Watch for changes in the route query to update the component state
-watch(() => route.query, (newQuery) => {
-  if (newQuery.term !== undefined && newQuery.term !== searchTerm.value) {
-    searchTerm.value = newQuery.term;
-  }
-
-  if (newQuery.manufacturer !== undefined && newQuery.manufacturer !== manufacturer.value) {
-    manufacturer.value = newQuery.manufacturer;
-  }
-
-  if (newQuery.modality !== undefined && newQuery.modality !== modality.value) {
-    modality.value = newQuery.modality;
-  }
-}, { deep: true });
-
-// Expose methods to parent components
-defineExpose({
-  clearFilters,
-  search,
-  getFilters: () => ({
-    term: searchTerm.value,
-    manufacturer: manufacturer.value,
-    modality: modality.value
-  })
-});
+// Select modality from accordion
+function selectModality(option) {
+  emit('update:modality', option.slug || '');
+}
 </script>
 
 <style lang="less" scoped>
@@ -137,7 +102,7 @@ defineExpose({
   display: inline-block;
   width: 100%;
   text-align: center;
-  background-color: #dc602e;
+  background-color: #2275b5;
   color: #fff;
   padding: 0.5rem 1rem;
   border-radius: 50px;
@@ -148,14 +113,14 @@ defineExpose({
     background-color: #304d6d;
   }
   &:hover {
-    opacity: 0.9;
+    opacity: 0.7;
   }
 }
 
 #sidebar-filters {
   background-color: #e0e4e9;
-  max-width: 300px;
   width: 100%;
+  min-width: 320px;
   position: sticky;
   top: 1rem;
 

@@ -3,12 +3,18 @@
         <div class="arrow">
             <i class="fa-sharp fa-chevron-down"></i>
         </div>
-        <div class="clear" v-if="selectedOption" @click="closeAndClear">
+        <button
+            v-if="selectedOption"
+            type="button"
+            class="clear text-gray-500 hover:text-gray-700"
+            aria-label="Clear selection"
+            @click="closeAndClear"
+        >
             <i class="fa-sharp fa-xmark"></i>
-        </div>
+        </button>
         <div class="close-big" v-if="showOptions" @click="showOptions = false">
         </div>
-        <input :id="collection + '-dropdown'" type="text" v-model="searchTerm" @focus="showOptions = true" @input="updateFilteredOptions" class="input px-4 py-2 rounded-full" :placeholder="placeholder" />
+        <input :id="collection + '-dropdown'" type="text" v-model="searchTerm" @focus="showOptions = true" @input="updateFilteredOptions" class="input px-4 py-2 pr-12 rounded-full" :placeholder="placeholder" />
         <div :class="{ active: showOptions }" class="options rounded shadow">
             <div v-for="option in filteredOptions" :key="option.id" class="option" v-html="highlightMatches(option.name)" @click="selectOption(option)"></div>
         </div>
@@ -29,7 +35,7 @@ const emit = defineEmits(['option-selected']);
 const searchTerm = ref(props.selectedValue || '');
 const showOptions = ref(false);
 const options = ref([]);
-const selectedOption = ref(props.selectedValue || null);
+const selectedOption = ref(null);
 const filteredOptions = ref([]);
 
 // Function to update filteredOptions based on options and searchTerm
@@ -52,8 +58,7 @@ function selectOption(option) {
 function closeAndClear() {
     selectedOption.value = null;
     searchTerm.value = '';
-
-    emit('option-selected', { name: '' });
+    emit('option-selected', { name: '', slug: '' });
 }
 
 defineExpose({
@@ -61,7 +66,7 @@ defineExpose({
     selectedOption.value = null;
     searchTerm.value = '';
 
-    emit('option-selected', { name: '' });
+    emit('option-selected', { name: '', slug: '' });
   }
 });
 
@@ -71,6 +76,7 @@ function highlightMatches(text) {
     return text.replace(matchRegex, (match) => `<strong>${match}</strong>`);
 }
 
+// Keep dropdown open/close behavior consistent
 watch(showOptions, (newValue) => {
     if (!newValue) return;
     const handler = (e) => {
@@ -82,12 +88,35 @@ watch(showOptions, (newValue) => {
     window.addEventListener('click', handler);
 });
 
+// Sync input and selection from incoming selectedValue (slug or name) whenever
+// props.selectedValue or options change (e.g., after async fetch)
+function syncFromProp() {
+    const val = props.selectedValue || '';
+    if (!val) {
+        selectedOption.value = null;
+        searchTerm.value = '';
+        return;
+    }
+    const found = options.value.find(o => o.slug === val || o.name === val);
+    if (found) {
+        selectedOption.value = found;
+        searchTerm.value = found.name;
+    } else {
+        selectedOption.value = null;
+        // do not show slug in the input; keep empty until user opens/selects
+        searchTerm.value = '';
+    }
+}
+watch([() => props.selectedValue, options], syncFromProp, { immediate: true });
+
 onMounted(async () => {
     try {
         const response = await fetch(`/api/data/get-collection?collection=${props.collection}`);
         if (!response.ok) throw new Error('Network response was not ok');
         const json = await response.json();
         options.value = json || [];
+        // ensure initial sync when options arrive
+        syncFromProp();
     } catch (error) {
         console.error("Error fetching collection:", error);
     }
@@ -110,9 +139,8 @@ onMounted(async () => {
         position: absolute;
         right: 40px;
         top: 50%;
-        font-size: 24px;
+        font-size: 16px;
         transform: translateY(-50%);
-        color: firebrick;
         z-index: 1;
     }
     .close-big {

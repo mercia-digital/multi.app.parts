@@ -40,6 +40,26 @@ export default defineEventHandler(async (event) => {
                         }
                     ]
                 },
+                // Request specific fields needed for the details page
+                fields: [
+                    'id',
+                    'slug',
+                    'title',
+                    'part_number',
+                    'content',
+                    'condition',
+                    'warranty',
+                    'returnable',
+                    'attributes',
+                    'manufacturer.slug',
+                    'manufacturer.name',
+                    'primary_image.id',
+                    'primary_image.title',
+                    'gallery.directus_files_id.id',
+                    'gallery.directus_files_id.title',
+                    'modalities.modalities_id.name',
+                    'modalities.modalities_id.slug'
+                ]
             },
         });
         return part.data[0];
