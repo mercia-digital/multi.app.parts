@@ -72,16 +72,23 @@
     </div>
 </template>
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 const runtimeConfig = useRuntimeConfig();
 
 const { data: appSettings } = await useAppSettings();
 
 const isMobileMenuOpen = ref(false);
 
+const route = useRoute();
+
 const toggleMobileMenu = () => {
     isMobileMenuOpen.value = !isMobileMenuOpen.value;
 };
+
+// Close mobile menu after SPA navigation
+watch(() => route.fullPath, () => {
+    isMobileMenuOpen.value = false;
+});
 </script>
 <style scoped lang="less">
 .header {
