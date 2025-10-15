@@ -278,6 +278,11 @@ const toggleMobileMenu = () => {
                     }
                     &.mega {
                         order: 2;
+                        &::before {
+                            /* Disable desktop hover extender on mobile to prevent overlay blocking clicks */
+                            display: none;
+                            content: none;
+                        }
                         .mega-menu {
                             position: relative;
                             top: auto;
