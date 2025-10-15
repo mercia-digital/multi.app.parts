@@ -143,11 +143,20 @@ const { data: appSettings } = await useAppSettings();
 
 const partValue = computed(() => part.value || null);
 
-const manufacturerName = computed(() => {
+const isOther = computed(() => String(manufacturer_slug) === 'other');
+
+// Raw name from data (e.g., 'Unspecified/Various' for slug 'other')
+const manufacturerRawName = computed(() => {
   const p = partValue.value;
   if (!p?.manufacturer) return '';
   return typeof p.manufacturer === 'object' ? p.manufacturer.name : p.manufacturer;
 });
+
+// Display name: hide on UI when slug is 'other'
+const manufacturerName = computed(() => (isOther.value ? '' : manufacturerRawName.value));
+
+// Schema/breadcrumb name: always use the raw name when available
+const manufacturerSchemaName = computed(() => manufacturerRawName.value || '');
 
 const partNumber = computed(() => partValue.value?.part_number || '');
 
@@ -205,6 +214,10 @@ const quoteUrl = computed(() => {
   if (manufacturerName.value === 'NXT Power') {
     return `https://www.multi-inc.com/request-a-quote-pqs?part_numbers=${encodeURIComponent(num)}&manufacturer=NXT+Power`;
   }
+  // For unknown/other manufacturer, omit the manufacturer param
+  if (!manufacturerName.value) {
+    return `https://www.multi-inc.com/request-a-quote-parts?part_numbers=${encodeURIComponent(num)}`;
+  }
   return `https://www.multi-inc.com/request-a-quote-parts?part_numbers=${encodeURIComponent(num)}&manufacturer=${encodeURIComponent(manufacturerName.value)}`;
 });
 
@@ -260,7 +273,7 @@ useHead(() => ({
         sku: partValue.value?.part_number || '',
         brand: {
           '@type': 'Brand',
-          name: manufacturerName.value || 'Unknown Manufacturer'
+          name: manufacturerSchemaName.value || 'Unknown Manufacturer'
         },
         offers: {
           '@type': 'Offer',
@@ -295,7 +308,7 @@ useJsonLd({
   itemListElement: [
     { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl + '/' },
     { '@type': 'ListItem', position: 2, name: 'Parts', item: siteUrl + '/parts' },
-    { '@type': 'ListItem', position: 3, name: manufacturerName.value || 'Manufacturer', item: siteUrl + `/parts/manufacturer/${manufacturer_slug}` },
+    { '@type': 'ListItem', position: 3, name: manufacturerSchemaName.value || 'Manufacturer', item: siteUrl + `/parts/manufacturer/${manufacturer_slug}` },
     { '@type': 'ListItem', position: 4, name: partNumber.value || 'Part', item: siteUrl + route.fullPath }
   ]
 });

@@ -7,7 +7,7 @@
             @update:manufacturer="manufacturer = $event" @update:modality="modality = $event" @submit="onSubmitHome" />
         <h3 class="text-2xl font-bold mt-16 mb-4 text-center">Browse by Manufacturer</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 px-4">
-            <div v-for="manufacturer in manufacturers" :key="manufacturer.id" class="shadow-md rounded-lg p-4">
+            <div v-for="manufacturer in filteredManufacturers" :key="manufacturer.id" class="shadow-md rounded-lg p-4">
                 <NuxtLink :to="'/parts/manufacturer/' + manufacturer.slug">
                     <img :src="runtimeConfig.public.directus.url + '/assets/' + manufacturer.logo + '?fit=inside&width=320'"
                         alt="{{manufacturer.name}}" class="mb-4 ml-auto mr-auto"></img>
@@ -29,6 +29,7 @@
 const runtimeConfig = useRuntimeConfig();
 
 const { data: manufacturers } = await useCollection('manufacturers');
+const filteredManufacturers = computed(() => (manufacturers.value || []).filter(m => m?.slug !== 'other'));
 
 // Controlled props for homepage search UI
 const search = ref('');

@@ -114,7 +114,12 @@ onMounted(async () => {
         const response = await fetch(`/api/data/get-collection?collection=${props.collection}`);
         if (!response.ok) throw new Error('Network response was not ok');
         const json = await response.json();
-        options.value = json || [];
+        // Exclude the synthetic 'other' manufacturer from options
+        if (props.collection === 'manufacturers') {
+            options.value = (json || []).filter(o => o?.slug !== 'other');
+        } else {
+            options.value = json || [];
+        }
         // ensure initial sync when options arrive
         syncFromProp();
     } catch (error) {

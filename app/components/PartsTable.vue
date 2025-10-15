@@ -15,12 +15,15 @@
             <div v-for="part in parts" :key="part.id" class="grid grid-cols-1 lg:grid-cols-4 gap-4 items-center border-b border-gray-300 p-4">   
                 <!-- Image -->
                 <div class="flex justify-center">
-                    <img v-if="part.primary_image" :src="`${runtimeConfig.public.directus.url}/assets/${part.primary_image.id}?fit=inside&width=360`" :alt="'Image of ' + part.part_number + ' from ' + part.manufacturer.name">
+                    <img v-if="part.primary_image" :src="`${runtimeConfig.public.directus.url}/assets/${part.primary_image.id}?fit=inside&width=360`" :alt="`Image of ${part.part_number}${(part.manufacturer?.name && part.manufacturer?.slug !== 'other') ? ' from ' + part.manufacturer.name : ''}`">
                     <img v-else :src="`${runtimeConfig.public.directus.url}/assets/${appSettings.default_image}?fit=inside&width=360`" alt="MULTI, INC.">
                 </div>
 
                 <div class="part-meta col-span-2">
-                    <h4 class="text-2xl font-bold pb-2">{{ part.part_number }} - <span class="">{{ part.manufacturer.name }}</span></h4>
+                    <h4 class="text-2xl font-bold pb-2">
+                        {{ part.part_number }}
+                        <template v-if="part.manufacturer?.name && part.manufacturer?.slug !== 'other'"> - <span class="">{{ part.manufacturer.name }}</span></template>
+                    </h4>
                     <p class="uppercase text-xl">{{ decodeHtmlEntities(part.title) }}</p>
                 </div>
 
@@ -44,7 +47,8 @@
 
                 <!-- Actions -->
                 <div class="flex justify-center gap-2 flex-wrap">
-                    <NuxtLink :to="`/part/${part.manufacturer.slug}/${part.slug}`" class="text-white bg-[#dc602e] px-4 py-2 rounded-full hover:bg-[#dc602e]/75 transition-colors">View Details</NuxtLink>
+                    <NuxtLink v-if="part.manufacturer?.slug" :to="`/part/${part.manufacturer.slug}/${part.slug}`" class="text-white bg-[#dc602e] px-4 py-2 rounded-full hover:bg-[#dc602e]/75 transition-colors">View Details</NuxtLink>
+                    <NuxtLink v-else :to="{ path: '/parts', query: { search: part.part_number } }" class="text-white bg-[#dc602e] px-4 py-2 rounded-full hover:bg-[#dc602e]/75 transition-colors">View Details</NuxtLink>
                     <a v-if="part.manufacturer?.name !== 'NXT Power'" :href="`https://www.multi-inc.com/request-a-quote-parts?part_numbers=${part.part_number}`" target="_blank" class="text-white bg-[#2275b5] px-4 py-2 rounded-full hover:bg-[#2275b5]/75 transition-colors">Request a Quote</a>
                     <a v-else :href="`https://www.multi-inc.com/request-a-quote-pqs?part_numbers=${part.part_number}&manufacturer=NXT+Power`" target="_blank" class="text-white bg-[#2275b5] px-4 py-2 rounded-full hover:bg-[#2275b5]/75 transition-colors">Request a Quote</a>
                 </div>
