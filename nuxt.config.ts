@@ -9,12 +9,14 @@ export default defineNuxtConfig({
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'format-detection', content: 'telephone=no' },
         { name: 'robots', content: 'index, follow' },
+        { name: 'google-site-verification', content: 'RTo4vA1tJKoUSDzXeiu-tVWH2_K2PwVScCdZoqQyl7A' },
         { property: 'og:type', content: 'website' },
         { property: 'og:site_name', content: 'MULTI, INC. Parts Catalog' },
         { name: 'twitter:card', content: 'summary_large_image' },
       ],
       link: [
         // Intentionally no global canonical; page-level or module-generated canonicals will apply
+        { rel: 'icon', type: 'image/webp', href: '/multi_favicon.webp' },
       ],
       script: [
         {
@@ -30,6 +32,10 @@ export default defineNuxtConfig({
         },
         {
           src: `https://www.googletagmanager.com/gtag/js?id=${process.env.NUXT_PUBLIC_GA_ID || 'G-LPH95E885X'}`,
+          async: true,
+        },
+        {
+          src: `https://www.clarity.ms/tag/${process.env.NUXT_PUBLIC_CLARITY_ID || 'lgmti6r585'}`,
           async: true,
         },
       ]
