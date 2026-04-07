@@ -2,6 +2,18 @@
     <div>
         <!-- Responsive Grid -->
         <div class="mb-4">
+            <div v-if="hasParts" class="mb-4 flex flex-wrap items-center justify-between gap-4">
+                <div class="text-sm text-gray-600">Showing {{ props.meta?.filter_count || 0 }} results</div>
+                <div class="flex items-center gap-2">
+                    <label for="parts-sort" class="text-sm text-gray-600 whitespace-nowrap">Sort By</label>
+                    <USelect
+                        id="parts-sort"
+                        v-model="sort"
+                        :items="sortOptions"
+                        class="min-w-[180px]"
+                    />
+                </div>
+            </div>
             <!-- Header for larger screens -->
             <!-- <div class="hidden md:grid md:grid-cols-5 gap-4 font-bold p-2 border-b text-center">
                 <div>Image</div>
@@ -59,18 +71,38 @@
             <p class="text-sm">Try adjusting your filters or search terms.</p>
         </div>
         
-        <!-- Pagination -->
-        <div v-if="hasParts" class="mb-4 flex justify-center">
+        <!-- Pagination + Jump to page -->
+        <div v-if="hasParts" class="mb-4 flex flex-wrap items-center justify-center gap-4">
             <UPagination
                 v-model:page="currentPage"
                 active-color="secondary"
                 show-edges
                 :sibling-count="siblingCount"
                 :size="paginationSize"
-                :total="totalPages"
-                :per-page="perPage"
+                :total="props.meta.filter_count"
+                :items-per-page="perPage"
                 @update:page="onPageChange"
             />
+            <div class="flex items-center gap-2">
+                <label for="jump-to-page" class="text-sm text-gray-600 whitespace-nowrap">Jump to</label>
+                <input
+                    id="jump-to-page"
+                    v-model.number="jumpToPageInput"
+                    type="number"
+                    min="1"
+                    :max="totalPages"
+                    :placeholder="`1-${totalPages}`"
+                    class="w-24 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#dc602e] focus:border-transparent"
+                    @keydown.enter="jumpToPage"
+                />
+                <button
+                    type="button"
+                    class="px-3 py-1 text-sm text-white bg-[#dc602e] rounded hover:bg-[#dc602e]/75 transition-colors"
+                    @click="jumpToPage"
+                >
+                    Go
+                </button>
+            </div>
         </div>
 
         <!-- Parts per page selection -->
@@ -84,17 +116,23 @@
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import he from 'he';
 
-const emit = defineEmits(['update:currentPage', 'update:perPage']);
+const emit = defineEmits(['update:currentPage', 'update:perPage', 'update:sort']);
 
 const props = defineProps({
     parts: {},
     meta: {},
     currentPage: Number,
-    perPage: Number
+    perPage: Number,
+    sort: {
+        type: String,
+        default: 'featured'
+    }
 });
 
 const currentPage = ref(props.currentPage);
 const perPage = ref(props.perPage);
+const sort = ref(props.sort || 'featured');
+const jumpToPageInput = ref('');
 
 // Whether there are any parts to display
 const hasParts = computed(() => Array.isArray(props.parts) && props.parts.length > 0);
@@ -119,6 +157,15 @@ watch(() => perPage.value, () => {
         emit('update:currentPage', 1);
     }
     emit('update:perPage', perPage.value);
+    scrollToTop();
+});
+
+watch(() => sort.value, () => {
+    emit('update:sort', sort.value);
+    if (currentPage.value !== 1) {
+        currentPage.value = 1;
+        emit('update:currentPage', 1);
+    }
     scrollToTop();
 });
 
@@ -160,12 +207,29 @@ const perPageOptions = ref([
     { value: 100, label: '100' },
 ]);
 
+const sortOptions = ref([
+    { value: 'featured', label: 'Featured' },
+    { value: 'part_number_asc', label: 'Part Number (A-Z)' },
+    { value: 'part_number_desc', label: 'Part Number (Z-A)' }
+]);
+
 const { data: appSettings } = await useAppSettings();
 
 const totalPages = computed(() => {
     if (!props.meta || !props.meta.filter_count) return 1;
     return Math.ceil(props.meta.filter_count / perPage.value);
 });
+
+// Jump to a specific page from the "Jump to" input
+const jumpToPage = () => {
+    const page = parseInt(jumpToPageInput.value, 10);
+    if (!Number.isFinite(page) || page < 1) return;
+    const target = Math.min(page, totalPages.value);
+    currentPage.value = target;
+    emit('update:currentPage', target);
+    jumpToPageInput.value = '';
+    scrollToTop();
+};
 
 // Scroll to top when results or total change (e.g., filter/search updates)
 watch(
@@ -188,6 +252,12 @@ watch(() => props.currentPage, (val) => {
 watch(() => props.perPage, (val) => {
     if (typeof val === 'number') {
         perPage.value = val;
+    }
+});
+
+watch(() => props.sort, (val) => {
+    if (typeof val === 'string') {
+        sort.value = val || 'featured';
     }
 });
 

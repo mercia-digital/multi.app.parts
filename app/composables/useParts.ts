@@ -10,6 +10,7 @@ interface QueryParams {
     search: Ref<string>;
     manufacturer_slug: Ref<string>;
     modality_slug: Ref<string>;
+    sort?: Ref<string>;
     manufacturer_id?: Ref<number | null>;
     modality_id?: Ref<number | null>;
 }
@@ -22,6 +23,7 @@ export const useParts = (queryParams: QueryParams) => {
         () => unref(queryParams.search),
         () => unref(queryParams.manufacturer_slug),
         () => unref(queryParams.modality_slug),
+        () => unref((queryParams as any).sort ?? ref('')),
         () => unref((queryParams as any).manufacturer_id ?? ref(null)),
         () => unref((queryParams as any).modality_id ?? ref(null)),
     ];
@@ -34,6 +36,7 @@ export const useParts = (queryParams: QueryParams) => {
             search: unref(queryParams.search) || '',
             manufacturer_slug: unref(queryParams.manufacturer_slug) || '',
             modality_slug: unref(queryParams.modality_slug) || '',
+            sort: unref((queryParams as any).sort ?? ref('')),
             manufacturer_id: unref((queryParams as any).manufacturer_id ?? ref(null)),
             modality_id: unref((queryParams as any).modality_id ?? ref(null)),
         };
@@ -51,6 +54,8 @@ export const useParts = (queryParams: QueryParams) => {
                 manufacturer_slug: unref(queryParams.manufacturer_slug),
                 modality_slug: unref(queryParams.modality_slug),
             };
+            const sort = unref((queryParams as any).sort ?? ref(''));
+            if (sort) params.sort = sort;
             const mid = unref((queryParams as any).manufacturer_id ?? ref(null));
             const moid = unref((queryParams as any).modality_id ?? ref(null));
             if (mid != null) params.manufacturer_id = mid;

@@ -33,8 +33,10 @@
                         :meta="meta"
                         :currentPage="page"
                         :perPage="perPage"
+                        :sort="sort"
                         @update:currentPage="page = $event"
                         @update:perPage="perPage = $event"
+                        @update:sort="sort = $event"
                     />
                     <div v-if="pending" class="absolute inset-0 grid place-items-center bg-white/50 z-10">
                         <div class="h-8 w-8 border-4 border-[#2275b5] border-t-transparent rounded-full animate-spin"></div>
@@ -96,6 +98,17 @@ const perPage = computed({
     set: (v) => router.replace({ query: { ...route.query, perPage: v !== 25 ? v : undefined, page: undefined } })
 });
 
+const sort = computed({
+    get: () => route.query.sort || 'featured',
+    set: (v) => router.replace({
+        query: {
+            ...route.query,
+            sort: v && v !== 'featured' ? v : undefined,
+            page: undefined
+        }
+    })
+});
+
 function onSubmitFilters(payload) {
     const query = {
         ...route.query,
@@ -131,6 +144,7 @@ if (!isCmsOverride.value) {
         search: search,
         manufacturer_slug: manufacturer,
         modality_slug: modality,
+        sort: computed(() => (sort.value === 'featured' ? '' : sort.value)),
     });
     partsData = result.data;
     pending = result.pending;

@@ -25,9 +25,17 @@ export default defineEventHandler(async (event) => {
         filter.modalities = { modalities_id: { _eq: query.modality_id } };
     }    
     
+    const requestedSort = Array.isArray(query.sort) ? query.sort[0] : query.sort;
+    const normalizedSort = typeof requestedSort === 'string' ? requestedSort : '';
+    const sortParam = normalizedSort === 'part_number_desc'
+        ? '-part_number'
+        : normalizedSort === 'part_number' || normalizedSort === 'part_number_asc'
+            ? 'part_number'
+            : '-sort,part_number';
+
     const directusParams: any = {
         search: query.search || '',
-        sort: '-sort',
+        sort: sortParam,
         filter: filter,
         limit: query.limit || 25,
         offset: query.offset || 0,
