@@ -48,11 +48,11 @@
             <div v-if="partValue?.warranty">
               <h3>Warranty: <span class="text-[#2275b5]">{{ partValue.warranty }}</span></h3>
             </div>
-            <div v-if="returnableText !== null">
+            <!-- <div v-if="returnableText !== null">
               <h3>Returnable: <span class="text-[#2275b5]">{{ returnableText }}</span></h3>
-            </div>
-            <div v-if="manufacturerName !== 'NXT Power'">
-              <h3>OEM Quality Assurance: <span class="text-[#2275b5]">Passed</span></h3>
+            </div> -->
+            <div>
+              <h3>Returnable: <span class="text-[#2275b5]">No</span></h3>
             </div>
             <div v-if="manufacturerName !== 'NXT Power'">
               <h3>Lead Times: <span class="text-[#2275b5]">Most parts shipped from inventory on the same day.</span></h3>
