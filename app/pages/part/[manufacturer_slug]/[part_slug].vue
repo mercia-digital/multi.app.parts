@@ -51,9 +51,9 @@
             <!-- <div v-if="returnableText !== null">
               <h3>Returnable: <span class="text-[#2275b5]">{{ returnableText }}</span></h3>
             </div> -->
-            <div>
+            <!-- <div>
               <h3>Returnable: <span class="text-[#2275b5]">No</span></h3>
-            </div>
+            </div> -->
             <div v-if="manufacturerName !== 'NXT Power'">
               <h3>Lead Times: <span class="text-[#2275b5]">Most parts shipped from inventory on the same day.</span></h3>
             </div>
