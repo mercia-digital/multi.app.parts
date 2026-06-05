@@ -38,6 +38,11 @@ export default defineNuxtConfig({
           src: `https://www.clarity.ms/tag/${process.env.NUXT_PUBLIC_CLARITY_ID || 'lgmti6r585'}`,
           async: true,
         },
+        {
+          src: 'https://umami.merciadev.com/script.js',
+          defer: true,
+          'data-website-id': 'd9d8a773-c369-48ac-b15c-305e29a99cf3'
+        }
       ]
     }
   },
