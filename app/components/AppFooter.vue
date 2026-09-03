@@ -27,12 +27,13 @@
             <div class="column">
                 <h3>Quick Links</h3>
                 <ul>
-                    <li><NuxtLink to="https://www.multi-inc.com/htm-professionals" target="_blank">HTM/ISO Professionals</NuxtLink></li>
-                    <li><NuxtLink to="/parts">Parts</NuxtLink></li>
-                    <li><NuxtLink to="/sitemap">Sitemap</NuxtLink></li>
-                    <li><NuxtLink to="https://www.multi-inc.com/medical-equipment" target="_blank">Medical Equipment</NuxtLink></li>
-                    <li><NuxtLink to="https://www.multi-inc.com/surgical-equipment" target="_blank">Surgical Equipment</NuxtLink></li>
+                    <!-- <li><NuxtLink to="https://www.multi-inc.com/htm-professionals" target="_blank">HTM/ISO Professionals</NuxtLink></li> -->
+                    <li><NuxtLink to="/parts">Parts</NuxtLink></li>                    
+                    <li><NuxtLink to="/parts/manufacturer/nxt-power">Power Quality Solutions</NuxtLink></li>
+                    <!-- <li><NuxtLink to="https://www.multi-inc.com/medical-equipment" target="_blank">Medical Equipment</NuxtLink></li>
+                    <li><NuxtLink to="https://www.multi-inc.com/surgical-equipment" target="_blank">Surgical Equipment</NuxtLink></li> -->
                     <li><NuxtLink to="https://www.multi-inc.com/service" target="_blank">Schedule Service</NuxtLink></li>
+                    <li><NuxtLink to="/sitemap">Sitemap</NuxtLink></li>
                 </ul>
             </div>
         </div>

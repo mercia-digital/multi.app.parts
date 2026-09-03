@@ -17,9 +17,9 @@
         </div>
         <div class="bottom" :class="{ 'mobile-open': isMobileMenuOpen }">
             <div class="nav-main container">
-                <div class="link">
+                <!-- <div class="link">
                     <NuxtLink to="https://www.multi-inc.com/htm-professionals" target="_blank">HTM/ISO Professionals</NuxtLink>
-                </div>
+                </div> -->
                 <div class="link mega">
                     <span class="link-title cursor-default">Parts</span>
                     <div class="mega-menu">
@@ -55,12 +55,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="link">
+                <!-- <div class="link">
                     <NuxtLink to="https://www.multi-inc.com/medical-equipment" target="_blank">Medical Equipment</NuxtLink>
                 </div>
                 <div class="link">
                     <NuxtLink to="https://www.multi-inc.com/surgical-equipment" target="_blank">Surgical Equipment</NuxtLink>
-                </div>
+                </div> -->
                 <div class="link">
                     <NuxtLink to="/parts/manufacturer/nxt-power">Power Quality Solutions</NuxtLink>
                 </div>
@@ -147,7 +147,7 @@ watch(() => route.fullPath, () => {
         .nav-main {
             display: flex;
             gap: 2rem;
-            justify-content: space-between;
+            justify-content: space-around;
             padding: 0 1rem;
             .link {
                 &>a, &>span {
