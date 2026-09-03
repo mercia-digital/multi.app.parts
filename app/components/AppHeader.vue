@@ -41,7 +41,7 @@
                                 <li><NuxtLink to="/parts/manufacturer/philips-healthcare">Philips Healthcare</NuxtLink></li>
                                 <li><NuxtLink to="/parts/manufacturer/carestream-health">Carestream Health</NuxtLink></li>
                                 <li><NuxtLink to="/parts/manufacturer/fujifilm-medical-systems">Fujifilm Medical Systems</NuxtLink></li>
-                                <li><NuxtLink to="/parts/manufacturer/agfa-healthcare">AGFA Healthcare</NuxtLink></li>
+                                <!-- <li><NuxtLink to="/parts/manufacturer/agfa-healthcare">AGFA Healthcare</NuxtLink></li> -->
                                 <li><NuxtLink to="/parts/manufacturer/konica-minolta">Konica Minolta</NuxtLink></li>
                                 <li><NuxtLink to="/parts/manufacturer/nxt-power">NXT Power</NuxtLink></li>
                             </ul>
